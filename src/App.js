@@ -2,17 +2,19 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const user=require("./models/user");
-
+app.use(express.json());
 app.post("/signup",async(req,res)=>{
-    const userDB=new user({
-        firstName:"Virat",
-        lastName:"Kohli",
-        email:"vk@gmail.com",
-        Gender:"Male",
-        Age:"35"
-    });
-    await userDB.save();
-    res.send("User Added Successfully");
+    //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
+    console.log(req.body);
+    // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.
+    try{
+      const User=new user(req.body);
+      await User.save();
+      res.send("User added Successfully");
+    }
+    catch(e){
+      console.log(e.message);
+    }
 })
 connectDB()
   .then(() => {
