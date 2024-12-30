@@ -16,6 +16,56 @@ app.post("/signup",async(req,res)=>{
       console.log(e.message);
     }
 })
+// now i have to get the id from the database by filtering out some details
+
+// there is the difference between the findOne and find function .. find function filters all the data but findOne only return the first data encounter at processing
+// if we doesn't pass any filter in the find it returns us a whole details of the collection
+app.get("/feed",async(req,res)=>{
+  const request=req.body.email;
+  const getData=await user.findOne({});
+  if(getData){
+    res.send(getData);
+  }
+  else res.status(404).send("User Not found");
+});
+// now i have to delete the data from the local database
+
+app.delete("/feed",async(req,res)=>{
+  const delData=req.body.userId;
+  try{
+    const result=await user.findByIdAndDelete(delData);
+    console.log(result);
+    res.send("User Deleted Successfully")
+  }
+  catch(e){
+    res.status(400).send("Something went wrong");
+  }
+});
+// now i have to update the details
+app.patch("/user",async(req,res)=>{
+  const userId=req.body.Id;
+  const data=req.body;
+  try{
+    const detail=await user.findByIdAndUpdate();
+    console.log(detail);
+    res.send("User updated Successfully");
+  }
+  catch(e){
+    res.status(400).send("Something went wrong");
+  }
+})
+app.put("/user",async(req,res)=>{
+  const id=req.body.Id;
+  const data=req.body;
+  try{
+    await user.findByIdAndUpdate(id,data);
+    res.send("User updated successfully")
+  }
+  catch(e){
+    res.status(400).send("Something went wrong");
+  }
+
+})
 connectDB()
   .then(() => {
     console.log("Database connection is Successful");
