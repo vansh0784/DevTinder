@@ -5,7 +5,6 @@ const user=require("./models/user");
 app.use(express.json());
 app.post("/signup",async(req,res)=>{
     //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
-    console.log(req.body);
     // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.
     try{
       const User=new user(req.body);
@@ -13,7 +12,7 @@ app.post("/signup",async(req,res)=>{
       res.send("User added Successfully");
     }
     catch(e){
-      console.log(e.message);
+      res.status(400).send("Failed"+e.message);
     }
 })
 // now i have to get the id from the database by filtering out some details
@@ -54,6 +53,7 @@ app.patch("/user",async(req,res)=>{
     res.status(400).send("Something went wrong");
   }
 })
+// there is a sli
 app.put("/user",async(req,res)=>{
   const id=req.body.Id;
   const data=req.body;
