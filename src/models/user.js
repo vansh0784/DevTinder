@@ -20,7 +20,7 @@ const Userschema=new mongo.Schema({
             }
         },
     },
-    Password:{
+    password:{
         type:String,
         required:true,
         validate(val){
