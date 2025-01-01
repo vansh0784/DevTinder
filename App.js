@@ -1,9 +1,9 @@
 const express = require("express");
-const { validationForSignUp } = require("./utils/Validation");
-const connectDB = require("./config/database");
+const { validationForSignUp } = require("./src/utils/Validation");
+const connectDB = require("./src/config/database");
 const bcrypt = require("bcrypt");
 const app = express();
-const user = require("./models/user");
+const user = require("./src/models/user");
 const valid = require("validator");
 app.use(express.json());
 app.post("/signup", async (req, res) => {
