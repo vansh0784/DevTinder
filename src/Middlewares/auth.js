@@ -1,22 +1,59 @@
-const userAuth=(req,res,next)=>{
-    console.log("Check for user authorization");
-    const token="xyz";
-    const isUserAuth=token==="xyz";
-    if(!isUserAuth){
-        res.status(401).send("Unauthorized Request");
+const user=require("../models/user")
+const bcrypt=require("bcrypt");
+const jwt=require("jsonwebtoken");
+const { findById } = require("../models/user");
+const userAuth=async(req,res,next)=>{
+    const {email,password}=req.body;
+    try{
+        const isUser=await user.findOne({email:email});
+        // console.log(isUser);
+        if(!isUser){
+            throw new Error("Invalid Credentials 1");
+        }
+        const isPasswordMatch=await bcrypt.compare(password,isUser.password);
+        // console.log(isPasswordMatch);
+        if(!isPasswordMatch){
+            throw new Error("Invalid Credentials 2");
+        }
+        const token=jwt.sign({_id:isUser._id},"Vansh@123",{expiresIn:"1d"});
+        console.log(token);
+        res.cookie("token",token);
+        next();
     }
-    else next();
-}
-const adminAuth=(req,res,next)=>{
-    console.log("Check for admin authorization");
-    const token="abc";
-    const isAdminAuth=token==="def";
-    if(!isAdminAuth){
-        res.status(401).send("Unautorized Request");
+    catch(e){
+        res.status(401).send("Invalid Credentials 3");
     }
-    else next();
 }
+const verifyToken=async(req,res,next)=>{
+    try{
+        const{token}=req.cookies;
+        const isTokenValid=jwt.verify(token,"Vansh@123");
+        // console.log(isTokenValid);
+        if(isTokenValid){
+            const{_id}=isTokenValid;
+            const userProfile=await user.findById(_id);
+            req.user={userProfile};
+            next();
+        }
+        else{
+            throw new Error("Token is expired .. Please login Again!!");
+        }
+
+    }
+    catch(e){
+        res.status(401).send("Invalid Credentials");
+    }
+}
+// const adminAuth=(req,res,next)=>{
+//     console.log("Check for admin authorization");
+//     const token="abc";
+//     const isAdminAuth=token==="def";
+//     if(!isAdminAuth){
+//         res.status(401).send("Unautorized Request");
+//     }
+//     else next();
+// }
 module.exports={
     userAuth,
-    adminAuth
+    verifyToken
 };

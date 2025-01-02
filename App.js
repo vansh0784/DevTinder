@@ -3,9 +3,13 @@ const { validationForSignUp } = require("./src/utils/Validation");
 const connectDB = require("./src/config/database");
 const bcrypt = require("bcrypt");
 const app = express();
+const cookieParser=require("cookie-parser");
+const jwt=require("jsonwebtoken");
 const user = require("./src/models/user");
 const valid = require("validator");
+const {userAuth,verifyToken}=require("./src/Middlewares/auth");
 app.use(express.json());
+app.use(cookieParser());
 app.post("/signup", async (req, res) => {
   //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
   // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.
@@ -26,23 +30,22 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("Failed" + e.message);
   }
 });
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+app.post("/login",userAuth, async (req, res) => {
   try {
-    const isUser = await user.findOne({ email: email });
-    if (!isUser) {
-      throw new Error("Invalid Credentials");
-    }
-    const isPasswordMatch = await bcrypt.compare(password, isUser.password);
-    if (isPasswordMatch) {
       res.send("Login Successful!!!!");
-    }
-    else{
-      throw new Error("Invalid Credentials");
-    }
-  } catch (e) {
+    } catch (e) {
     res.status(401).send("login failed" + e);
   }
+});
+app.post("/profile",verifyToken,async(req,res)=>{
+  try{
+    const{userProfile}=req.user;
+    res.send(userProfile);
+  }
+ catch (e) {
+  res.status(401).send("login failed" + e);
+}
+
 });
 // now i have to get the id from the database by filtering out some details
 
@@ -93,7 +96,7 @@ app.put("/user", async (req, res) => {
 connectDB()
   .then(() => {
     console.log("Database connection is Successful");
-    app.listen(3307, () => {
+    app.listen(3000, () => {
       console.log("server is running properly");
     });
   })
