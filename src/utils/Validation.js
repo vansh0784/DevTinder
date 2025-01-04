@@ -11,6 +11,13 @@ const validationForSignUp=(req)=>{
         throw new Error("Please try a strong password");
     }
 };
+const validateProfileData=(req)=>{
+    const editableFields=["firstName","lastName","email","Age","Gender","About"];
+    const isAllowed=Object.keys(req.body).every(field=>editableFields.includes(field));
+    // console.log("is allowed"+isAllowed);
+    return isAllowed;
+}
 module.exports={
     validationForSignUp,
+    validateProfileData
 }

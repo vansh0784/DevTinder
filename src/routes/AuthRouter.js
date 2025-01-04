@@ -4,13 +4,14 @@ const bcrypt = require("bcrypt");
 const user=require("../models/user");
 const cookieParser=require("cookie-parser");
 const {validationForSignUp}=require("../utils/Validation");
-const {userAuth}=require("./src/Middlewares/auth");
-
+const {userAuth}=require("../Middlewares/auth")
+authRouter.use(express.json());
+authRouter.use(cookieParser());
 authRouter.post("/signup",async(req,res)=>{
     validationForSignUp(req.body);
     const {firstName,lastName,email,password}=req.body
     try{
-        const Hashpassword=await bcrypt.hash(passwod,10);
+        const Hashpassword=await bcrypt.hash(password,10);
         const User=new user({
             firstName,
             lastName,

@@ -1,98 +1,97 @@
 const express = require("express");
-const { validationForSignUp } = require("./src/utils/Validation");
 const connectDB = require("./src/config/database");
-const bcrypt = require("bcrypt");
 const app = express();
 const cookieParser=require("cookie-parser");
-const jwt=require("jsonwebtoken");
-const user = require("./src/models/user");
-const valid = require("validator");
-const {userAuth,verifyToken}=require("./src/Middlewares/auth");
 app.use(express.json());
 app.use(cookieParser());
-app.post("/signup", async (req, res) => {
-  //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
-  // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.
-  validationForSignUp(req.body);
-  const { firstName, lastName, email, password } = req.body;
-  try {
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
-    const User = new user({
-      firstName,
-      lastName,
-      email,
-      password: passwordHash,
-    });
-    await User.save();
-    res.send("User added Successfully");
-  } catch (e) {
-    res.status(400).send("Failed" + e.message);
-  }
-});
-app.post("/login",userAuth, async (req, res) => {
-  try {
-      res.send("Login Successful!!!!");
-    } catch (e) {
-    res.status(401).send("login failed" + e);
-  }
-});
-app.post("/profile",verifyToken,async(req,res)=>{
-  try{
-    const{userProfile}=req.user;
-    res.send(userProfile);
-  }
- catch (e) {
-  res.status(401).send("login failed" + e);
-}
 
-});
-// now i have to get the id from the database by filtering out some details
+const authRoute=require("./src/routes/AuthRouter");
+const profileRoute=require("./src/routes/profileRouter");
+app.use("/", authRoute);
+app.use("/",profileRoute);
+// // app.post("/signup", async (req, res) => {
+// //   //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
+// //   // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.
+// //   validationForSignUp(req.body);
+// //   const { firstName, lastName, email, password } = req.body;
+// //   try {
+// //     const passwordHash = await bcrypt.hash(password, 10);
+// //     console.log(passwordHash);
+// //     const User = new user({
+// //       firstName,
+// //       lastName,
+// //       email,
+// //       password: passwordHash,
+// //     });
+// //     await User.save();
+// //     res.send("User added Successfully");
+// //   } catch (e) {
+// //     res.status(400).send("Failed" + e.message);
+// //   }
+// // });
+// // app.post("/login",userAuth, async (req, res) => {
+// //   try {
+// //       res.send("Login Successful!!!!");
+// //     } catch (e) {
+// //     res.status(401).send("login failed" + e);
+// //   }
+// // });
+// // app.post("/profile",verifyToken,async(req,res)=>{
+// //   try{
+// //     const{userProfile}=req.user;
+// //     res.send(userProfile);
+// //   }
+// //  catch (e) {
+// //   res.status(401).send("login failed" + e);
+// // }
 
-// there is the difference between the findOne and find function .. find function filters all the data but findOne only return the first data encounter at processing
-// if we doesn't pass any filter in the find it returns us a whole details of the collection
-app.get("/feed", async (req, res) => {
-  const request = req.body.email;
-  const getData = await user.findOne({});
-  if (getData) {
-    res.send(getData);
-  } else res.status(404).send("User Not found");
-});
-// now i have to delete the data from the local database
+// // });
+// // now i have to get the id from the database by filtering out some details
 
-app.delete("/feed", async (req, res) => {
-  const delData = req.body.userId;
-  try {
-    const result = await user.findByIdAndDelete(delData);
-    console.log(result);
-    res.send("User Deleted Successfully");
-  } catch (e) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// now i have to update the details
-app.patch("/user", async (req, res) => {
-  const userId = req.body.Id;
-  const data = req.body;
-  try {
-    const detail = await user.findByIdAndUpdate();
-    console.log(detail);
-    res.send("User updated Successfully");
-  } catch (e) {
-    res.status(400).send("Something went wrong");
-  }
-});
-// there is a sli
-app.put("/user", async (req, res) => {
-  const id = req.body.Id;
-  const data = req.body;
-  try {
-    await user.findByIdAndUpdate(id, data);
-    res.send("User updated successfully");
-  } catch (e) {
-    res.status(400).send("Something went wrong");
-  }
-});
+// // there is the difference between the findOne and find function .. find function filters all the data but findOne only return the first data encounter at processing
+// // if we doesn't pass any filter in the find it returns us a whole details of the collection
+// app.get("/feed", async (req, res) => {
+//   const request = req.body.email;
+//   const getData = await user.findOne({});
+//   if (getData) {
+//     res.send(getData);
+//   } else res.status(404).send("User Not found");
+// });
+// // now i have to delete the data from the local database
+
+// app.delete("/feed", async (req, res) => {
+//   const delData = req.body.userId;
+//   try {
+//     const result = await user.findByIdAndDelete(delData);
+//     console.log(result);
+//     res.send("User Deleted Successfully");
+//   } catch (e) {
+//     res.status(400).send("Something went wrong");
+//   }
+// });
+// // now i have to update the details
+// app.patch("/user", async (req, res) => {
+//   const userId = req.body.Id;
+//   const data = req.body;
+//   try {
+//     const detail = await user.findByIdAndUpdate();
+//     console.log(detail);
+//     res.send("User updated Successfully");
+//   } catch (e) {
+//     res.status(400).send("Something went wrong");
+//   }
+// });
+// // there is a sli
+// app.put("/user", async (req, res) => {
+//   const id = req.body.Id;
+//   const data = req.body;
+//   try {
+//     await user.findByIdAndUpdate(id, data);
+//     res.send("User updated successfully");
+//   } catch (e) {
+//     res.status(400).send("Something went wrong");
+//   }
+// });
 connectDB()
   .then(() => {
     console.log("Database connection is Successful");
