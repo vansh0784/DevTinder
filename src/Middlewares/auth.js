@@ -30,7 +30,7 @@ const verifyToken=async(req,res,next)=>{
     try{
         const{token}=req.cookies;
         const isTokenValid=jwt.verify(token,"Vansh@123");
-        // console.log(isTokenValid);
+        console.log(isTokenValid);
         if(isTokenValid){
             const{_id}=isTokenValid;
             const userProfile=await user.findById(_id);
