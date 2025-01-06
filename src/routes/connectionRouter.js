@@ -5,6 +5,7 @@ connRouter.use(express.json());
 connRouter.use(cookieParser());
 const ConnectUser = require("../models/connectUser");
 const { verifyToken } = require("../Middlewares/auth");
+const mongoose = require("mongoose");
 
 connRouter.post(
   "/connection/:status/:UserId",
@@ -47,29 +48,33 @@ connRouter.post(
   "/request/review/:status/:UserId",
   verifyToken,
   async (req, res) => {
-    try{
-      const loggedInId=req.user?._id;
-      const {status,UserId:requestId}=req.params;
-      const isAllowedStatus=["accepted","rejected"];
-      if(!isAllowedStatus.includes(status)){
-        res.status(400).json({message:`Invalid Status type`});
+    try {
+      const loggedInId = req.user?._id;
+      const { status, UserId: requestId } = req.params;
+      const isAllowedStatus = ["accepted", "rejected"];
+      const id = new mongoose.Types.ObjectId(requestId);
+      console.log(status);
+      if (!isAllowedStatus.includes(status)) {
+        return res.status(400).json({ message: `Invalid Status type` });
       }
-      console.log(isAllowedStatus)
-      const existingUser=await ConnectUser.findOne({
-        _id:requestId,
-        toId:loggedInId,
-        status:"interested"
+      console.log(isAllowedStatus);
+      console.log(typeof loggedInId);
+      const existingUser = await ConnectUser.findOne({
+        _id: id,
+        toId: loggedInId,
+        status: "interested",
       });
       console.log(existingUser);
-      if(!existingUser){
-        res.status(400).json({message:`No Connection found for ${req.user?.firstName}`});
+      if (!existingUser) {
+        return res
+          .status(400)
+          .json({ message: `No Connection found for ${req.user?.firstName}` });
       }
-      existingUser.status=status;
-      const data=await existingUser.save();
+      existingUser.status = status;
+      const data = await existingUser.save();
       console.log(data);
-      res.json({message:`Connection request ${status}`,data});
-    }
-    catch (e) {
+      res.json({ message: `Connection request ${status}`, data });
+    } catch (e) {
       res.status(400).json({ message: `Failed!!!-${e.message}` });
     }
   }

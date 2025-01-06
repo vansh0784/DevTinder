@@ -8,9 +8,11 @@ app.use(cookieParser());
 const authRoute=require("./src/routes/AuthRouter");
 const profileRoute=require("./src/routes/profileRouter");
 const connectRoute=require("./src/routes/connectionRouter");
+const UserRoute = require("./src/routes/User");
 app.use("/", authRoute);
 app.use("/",profileRoute);
 app.use("/",connectRoute);
+app.use("/",UserRoute);
 // // app.post("/signup", async (req, res) => {
 // //   //console.log(req); this will give me the whole request message and its to hard to get the details from there which are comes at Api(post).
 // //   // AS we know that the api which carries our data is in body but we can able to access it and it shows us a message undefined because js cannot understand the JSON and the post APi body has a json in it to access it we have to use a middleware ... provided by express to convert json into js.

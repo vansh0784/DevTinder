@@ -14,6 +14,6 @@
     -/connection/accepted ---> All the accepted request
     -/connection/requested ---> all the request sent for connecting
 
-# Feed
-    -/feed ---> all the profiles suggested by the devTinder
-    -/feed/connectionList/ ---> all the connected friends any particular profile
+# User
+    -/user/request/recieved ---> all the profiles suggested by the devTinder
+    -/user/connectionList/ ---> all the connected friends any particular profile
