@@ -27,7 +27,10 @@ authRouter.post("/signup",async(req,res)=>{
 })
 authRouter.post("/login",userAuth,(req,res)=>{
     try{
-        res.send("Login Successful!!");
+        res.status(200).json({
+            message:"Login Sucessful!!!",
+            data:req.user,
+        })
     }
     catch(e){
         res.status(401).send("login failed" + e);

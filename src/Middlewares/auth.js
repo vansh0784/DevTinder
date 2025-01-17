@@ -18,7 +18,8 @@ const userAuth=async(req,res,next)=>{
             throw new Error("Invalid Credentials 2");
         }
         const token=jwt.sign({_id:isUser._id},"Vansh@123",{expiresIn:"1d"});
-        console.log(token);
+        // console.log(token);
+        req.user=isUser;
         res.cookie("token",token);
         next();
     }
