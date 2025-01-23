@@ -12,9 +12,9 @@ const validationForSignUp=(req)=>{
     }
 };
 const validateProfileData=(req)=>{
-    const editableFields=["firstName","lastName","email","Age","Gender","About"];
+    const editableFields=["firstName","lastName","email","Age","Gender","About","imageUrl"];
     const isAllowed=Object.keys(req.body).every(field=>editableFields.includes(field));
-    // console.log("is allowed"+isAllowed);
+    console.log("is allowed"+isAllowed);
     return isAllowed;
 }
 module.exports={

@@ -1,17 +1,28 @@
 const express = require("express");
+const cors=require("cors");
 const connectDB = require("./src/config/database");
 const app = express();
 const cookieParser=require("cookie-parser");
-const cors=require("cors");
 
+const PORT=5173||5174;
 app.use(
   cors({
-    origin: "http://localhost:5174", // Allow requests from this origin
-    methods: "GET,POST,PUT,DELETE,PATCH",  // Allow specific HTTP methods
-    allowedHeaders: "Content-Type,Authorization",
-    credentials:true // Allow specific headers
+    origin: `http://localhost:${PORT}`,  // Allow requests from this origin
+    methods: ["GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"],  // Allow these HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"],  // Allow these headers
+    credentials: true,  // Allow cookies and credentials to be included in requests
   })
 );
+
+// Ensure that preflight OPTIONS request is handled correctly
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", `http://localhost:${PORT}`);
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, PUT, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);  // Respond with status 200 OK
+});
+
 
 app.use(express.json());
 app.use(cookieParser());

@@ -31,7 +31,7 @@ const verifyToken=async(req,res,next)=>{
     try{
         const{token}=req.cookies;
         const isTokenValid=jwt.verify(token,"Vansh@123");
-        console.log(isTokenValid);
+        // console.log(isTokenValid);
         if(isTokenValid){
             const{_id}=isTokenValid;
             const userProfile=await user.findById(_id);
@@ -39,7 +39,7 @@ const verifyToken=async(req,res,next)=>{
             next();
         }
         else{
-            throw new Error("Token is expired .. Please login Again!!");
+            return res.status(401).send("Token expired --> Login again");
         }
 
     }
