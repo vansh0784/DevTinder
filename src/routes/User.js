@@ -62,7 +62,7 @@ UserRoute.get("/user/connectionList", verifyToken, async (req, res) => {
 });
 
 // ✅ Feed: show users not yet connected to the logged-in user
-UserRoute.get("/feed", verifyToken, async (req, res) => {
+UserRoute.get("/user/feed", verifyToken, async (req, res) => {
   try {
     const loggedInId = req.user?._id;
     if (!loggedInId) throw new Error("User not found from token.");
