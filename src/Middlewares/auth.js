@@ -2,32 +2,11 @@ const user=require("../models/user")
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
 // const { findById } = require("../models/user");
-const userAuth=async(req,res,next)=>{
-    const {email,password}=req.body;
-    try{
-        const isUser=await user.findOne({email:email});
-        if(!isUser){
-            console.log("email is make error");
-            throw new Error("Invalid Credentials 1");
-        }
-        const isPasswordMatch=await bcrypt.compare(password,isUser.password);
-        if(!isPasswordMatch){
-            console.log("password is make error");
-            throw new Error("Invalid Credentials 2");
-        }
-        const token=jwt.sign({_id:isUser._id},"Vansh@123",{expiresIn:"1d"});
-        req.user=isUser;
-        res.cookie("token",token);
-        next();
-    }
-    catch(e){
-        res.status(401).send("Invalid Credentials 3");
-    }
-}
+
 const verifyToken=async(req,res,next)=>{
     try{
         const{token}=req.cookies;
-        const isTokenValid=jwt.verify(token,"Vansh@123");   
+        const isTokenValid=jwt.verify(token,"Vansh@123");
         if(isTokenValid){
             const{_id}=isTokenValid;
             const userProfile=await user.findById(_id);

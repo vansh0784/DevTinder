@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const user=require("../models/user");
 const cookieParser=require("cookie-parser");
 const {validationForSignUp}=require("../utils/Validation");
-const {userAuth, verifyToken}=require("../Middlewares/auth")
+const {userAuth}=require("../Middlewares/auth")
 authRouter.use(express.json());
 authRouter.use(cookieParser());
 authRouter.post("/signup",async(req,res)=>{
@@ -22,14 +22,13 @@ authRouter.post("/signup",async(req,res)=>{
             Gender:Gender,
         });
         await User.save();
-        await userAuth();
         res.send("User added successfully!!");
     }
     catch (e) {
         res.status(400).send("Failed" + e.message);
       }
 })
-authRouter.post("/login",verifyToken,(req,res)=>{
+authRouter.post("/login",userAuth,(req,res)=>{
     try{
         res.status(200).json({
             message:"Login Sucessful!!!",

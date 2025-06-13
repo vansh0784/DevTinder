@@ -17,4 +17,4 @@
 # User
     -/user/request/recieved ---> all the profiles suggested by the devTinder
     -/user/connectionList/ ---> all the connected friends any particular profile
-    -/feed
+    -/feed 
