@@ -4,10 +4,10 @@ const bcrypt = require("bcrypt");
 const user=require("../models/user");
 const cookieParser=require("cookie-parser");
 const {validationForSignUp}=require("../utils/Validation");
-const {userAuth}=require("../Middlewares/auth")
+const {userAuth, verifyToken}=require("../Middlewares/auth")
 authRouter.use(express.json());
 authRouter.use(cookieParser());
-authRouter.post("/signup",async(req,res)=>{
+authRouter.post("/signup",userAuth,async(req,res)=>{
     validationForSignUp(req.body);
     const {firstName,lastName,email,password,About,Age,Gender}=req.body
     try{
@@ -28,7 +28,7 @@ authRouter.post("/signup",async(req,res)=>{
         res.status(400).send("Failed" + e.message);
       }
 })
-authRouter.post("/login",userAuth,(req,res)=>{
+authRouter.post("/login",verifyToken,(req,res)=>{
     try{
         res.status(200).json({
             message:"Login Sucessful!!!",
