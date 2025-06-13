@@ -6,19 +6,16 @@ const userAuth=async(req,res,next)=>{
     const {email,password}=req.body;
     try{
         const isUser=await user.findOne({email:email});
-        // console.log(isUser);
         if(!isUser){
             console.log("email is make error");
             throw new Error("Invalid Credentials 1");
         }
         const isPasswordMatch=await bcrypt.compare(password,isUser.password);
-        // console.log(isPasswordMatch);
         if(!isPasswordMatch){
             console.log("password is make error");
             throw new Error("Invalid Credentials 2");
         }
         const token=jwt.sign({_id:isUser._id},"Vansh@123",{expiresIn:"1d"});
-        // console.log(token);
         req.user=isUser;
         res.cookie("token",token);
         next();
@@ -30,8 +27,7 @@ const userAuth=async(req,res,next)=>{
 const verifyToken=async(req,res,next)=>{
     try{
         const{token}=req.cookies;
-        const isTokenValid=jwt.verify(token,"Vansh@123");
-        // console.log(isTokenValid);
+        const isTokenValid=jwt.verify(token,"Vansh@123");   
         if(isTokenValid){
             const{_id}=isTokenValid;
             const userProfile=await user.findById(_id);

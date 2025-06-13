@@ -3,24 +3,30 @@ const cors=require("cors");
 const connectDB = require("./src/config/database");
 const app = express();
 const cookieParser=require("cookie-parser");
+const http=require("http");
+const initializeSocket =require("./src/utils/socket");
 
-const PORT=5173||5174;
+const server=http.createServer(app);
+initializeSocket(server);
+
 app.use(
   cors({
-    origin: `http://localhost:${PORT}`,  // Allow requests from this origin
-    methods: ["GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"],  // Allow these HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"],  // Allow these headers
-    credentials: true,  // Allow cookies and credentials to be included in requests
+    origin:process.env.FRONTEND_URL,
+    methods: ["GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials:true,
   })
 );
+// app.options("*", cors()); // Allow preflight requests on all routes
+
 
 // Ensure that preflight OPTIONS request is handled correctly
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `http://localhost:${PORT}`);
-  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, PUT, OPTIONS");
+  res.header("Access-Control-Allow-Origin",process.env.FRONTEND_URL);
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, PUT");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);  // Respond with status 200 OK
+  res.sendStatus(200);
 });
 
 
@@ -118,10 +124,11 @@ app.use("/",UserRoute);
 //     res.status(400).send("Something went wrong");
 //   }
 // });
+
 connectDB()
   .then(() => {
     console.log("Database connection is Successful");
-    app.listen(3000, () => {
+    server.listen(process.env.SERVER_PORT, () => {
       console.log("server is running properly");
     });
   })

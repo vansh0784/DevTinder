@@ -16,13 +16,11 @@ connRouter.post(
       const loggedInId = req.user?._id;
       const statusId = req.params.UserId;
       const stat = req.params.status;
-      // console.log(loggedInId, statusId, stat);
       const allowedStatus = ["interested", "ignored"];
 
       if (!allowedStatus.includes(stat)) {
         return res.status(400).json({ message: `Invalid Status typee` });
       }
-      // console.log(allowedStatus);
       const existingRequest = await ConnectUser.findOne({
         $or: [
           { loggedInId, statusId },
@@ -32,7 +30,6 @@ connRouter.post(
       if (existingRequest) {
         throw new Error("Connect Request already exits");
       }
-      // console.log("Existing Request:", existingRequest);
       const connect = new ConnectUser({
         fromId: loggedInId,
         toId: statusId,
@@ -57,20 +54,16 @@ connRouter.post(
       const { status, UserId: requestId } = req.params;
       const isAllowedStatus = ["accepted", "rejected"];
       const id = new mongoose.Types.ObjectId(requestId);
-      // console.log(status);
-      // console.log(loggedInId);
+
       if (!isAllowedStatus.includes(status)) {
         return res.status(400).json({ message: `Invalid Status type` });
       }
-      // console.log(isAllowedStatus);
-      // console.log(typeof loggedInId);
+
       const existingUser = await ConnectUser.findOne({
         _id: id,
         toId: loggedInId,
         status: "interested",
       }).populate("fromId",displayProfile);
-
-      console.log(existingUser);
       if (!existingUser) {
         return res
           .status(400)
@@ -78,7 +71,6 @@ connRouter.post(
       }
       existingUser.status = status;
       const data = await existingUser.save();
-      // console.log(data);
       res.json({ message: `Connection request ${status}`, data:data });
     } catch (e) {
       res.status(400).json({ message: `Failed!!!-${e.message}` });

@@ -23,21 +23,20 @@ proRouter.post("/edit/Profile",verifyToken,async(req,res)=>{
             throw new Error("Not Editable ");
         }
         const userId=req.user?._id;
-        // console.log(userId);
+
         if(!userId){
             return new Error("User Not Found");
         }
         const user=await User.findById(userId);
-        // console.log(user);
+
         Object.keys(req.body).forEach(key=>user[key]=req.body[key]);
-        // console.log(user);
         await user.save();
         res.json({message:`${user.firstName} your profile edit successfully`,
         data:user});
 
     }
     catch (e) {
-        res.status(401).send("Not Editable !!1 " + e);
+        res.status(401).send("Not Editable !! " + e);
       }
 });//
 proRouter.post("/profile/editPassword",verifyToken,async(req,res)=>{

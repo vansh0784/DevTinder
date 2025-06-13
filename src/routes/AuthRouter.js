@@ -9,14 +9,17 @@ authRouter.use(express.json());
 authRouter.use(cookieParser());
 authRouter.post("/signup",async(req,res)=>{
     validationForSignUp(req.body);
-    const {firstName,lastName,email,password}=req.body
+    const {firstName,lastName,email,password,About,Age,Gender}=req.body
     try{
         const Hashpassword=await bcrypt.hash(password,10);
         const User=new user({
-            firstName,
-            lastName,
-            email,
-            password:Hashpassword
+            firstName:firstName,
+            lastName:lastName,
+            email:email,
+            password:Hashpassword,
+            About:About,
+            Age:Age,
+            Gender:Gender,
         });
         await User.save();
         res.send("User added successfully!!");

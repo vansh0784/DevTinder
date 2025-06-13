@@ -37,7 +37,6 @@ UserRoute.get("/user/connectionList", verifyToken, async (req, res) => {
       })
       .populate("toId", displayProfile)
       .populate("fromId", displayProfile);
-    console.log(allConnections);
     const data = allConnections.map((key) => key.toId);
     res.json({
       message: "All connections are Here",
@@ -53,20 +52,17 @@ UserRoute.get("/feed", verifyToken, async (req, res) => {
     const allConnection=await connectionUser.find({
       $or:[{fromId:loggedIn?._id},{toId:loggedIn?._id}]
     });
-    // console.log(allConnection);
     const hideProfile=new Set();
     allConnection.forEach(pro=>{
       hideProfile.add(pro.fromId.toString());
       hideProfile.add(pro.toId.toString());
     });
-    // console.log(hideProfile);
     const user=await USER.find({
       $and:[
         {_id:{$nin:Array.from(hideProfile)}},
         {_id:{$ne:loggedIn?._id}}
       ]
     }).select(displayProfile);
-    // console.log(user);
     res.status(200).json({
       message:"All Feeds are Here...!",
       success:true,
