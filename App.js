@@ -13,12 +13,20 @@ initializeSocket(server);
 
 app.use(
   cors({
-    origin:process.env.FRONTEND_URL,
+    origin:"https://devtinder-ui-theta.vercel.app",
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials:true,
   })
 );
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "https://devtinder-ui-theta.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, PUT");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+});
+
 // app.options("*", cors()); // Allow preflight requests on all routes
 
 
