@@ -4,30 +4,36 @@ const { verifyToken } = require("../Middlewares/auth");
 const connectionUser = require("../models/connectUser");
 const USER=require("../models/user");
 const displayProfile = ["firstName", "lastName", "About"];
-UserRoute.get("/user/request/recieved", verifyToken, async (req, res) => {
+
+UserRoute.get("/user/request/received", verifyToken, async (req, res) => {
   try {
     const userId = req.user?._id;
-    if (!userId) throw new Error("No user found!!");
+    if (!userId) throw new Error("No user found!");
+
     const allRequest = await connectionUser
       .find({
         toId: userId,
         status: "interested",
       })
-      .populate("fromId", displayProfile);
-    res.json({
-      message: "Data Fetched successfully",
+      .populate("fromId", displayProfile.join(" "));
+
+    res.status(200).json({
+      message: "Requests fetched successfully.",
       connectReq: allRequest,
     });
   } catch (e) {
-    res.status(400).json({ message: "No Connections Found!!" });
+    res.status(400).json({
+      message: e.message || "Failed to fetch connection requests.",
+    });
   }
 });
+
+// ✅ Get all connections of logged-in user
 UserRoute.get("/user/connectionList", verifyToken, async (req, res) => {
   try {
     const loggedId = req.user?._id;
-    if (!loggedId) {
-      throw new Error("No User found!!");
-    }
+    if (!loggedId) throw new Error("No user found!");
+
     const allConnections = await connectionUser
       .find({
         $or: [
@@ -35,42 +41,54 @@ UserRoute.get("/user/connectionList", verifyToken, async (req, res) => {
           { fromId: loggedId, status: "accepted" },
         ],
       })
-      .populate("toId", displayProfile)
-      .populate("fromId", displayProfile);
-    const data = allConnections.map((key) => key.toId);
-    res.json({
-      message: "All connections are Here",
+      .populate("toId", displayProfile.join(" "))
+      .populate("fromId", displayProfile.join(" "));
+
+    const data = allConnections.map((conn) => {
+      return conn.toId._id.toString() === loggedId.toString()
+        ? conn.fromId
+        : conn.toId;
+    });
+
+    res.status(200).json({
+      message: "All connections fetched successfully.",
       data: data,
     });
   } catch (e) {
-    res.status(400).json({ message: "No Connections Found!!" });
+    res.status(400).json({
+      message: e.message || "Failed to fetch connection list.",
+    });
   }
 });
+
+// ✅ Feed: show users not yet connected to the logged-in user
 UserRoute.get("/feed", verifyToken, async (req, res) => {
-  try{
-    const loggedIn=req.user;
-    const allConnection=await connectionUser.find({
-      $or:[{fromId:loggedIn?._id},{toId:loggedIn?._id}]
+  try {
+    const loggedInId = req.user?._id;
+
+    const allConnections = await connectionUser.find({
+      $or: [{ fromId: loggedInId }, { toId: loggedInId }],
     });
-    const hideProfile=new Set();
-    allConnection.forEach(pro=>{
-      hideProfile.add(pro.fromId.toString());
-      hideProfile.add(pro.toId.toString());
+
+    const hideProfile = new Set([loggedInId.toString()]);
+    allConnections.forEach((conn) => {
+      hideProfile.add(conn.fromId.toString());
+      hideProfile.add(conn.toId.toString());
     });
-    const user=await USER.find({
-      $and:[
-        {_id:{$nin:Array.from(hideProfile)}},
-        {_id:{$ne:loggedIn?._id}}
-      ]
-    }).select(displayProfile);
+
+    const usersToShow = await USER.find({
+      _id: { $nin: Array.from(hideProfile) },
+    }).select(displayProfile.join(" "));
+
     res.status(200).json({
-      message:"All Feeds are Here...!",
-      success:true,
-      data:user,
+      message: "All feeds are here.",
+      success: true,
+      data: usersToShow,
     });
-  }
-  catch (e) {
-    res.status(400).json({ message: "No Connections Found!!" });
+  } catch (e) {
+    res.status(400).json({
+      message: e.message || "Failed to fetch feed.",
+    });
   }
 });
 module.exports = UserRoute;
