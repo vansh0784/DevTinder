@@ -7,7 +7,7 @@ const {validationForSignUp}=require("../utils/Validation");
 const {userAuth, verifyToken}=require("../Middlewares/auth")
 authRouter.use(express.json());
 authRouter.use(cookieParser());
-authRouter.post("/signup",userAuth,async(req,res)=>{
+authRouter.post("/signup",async(req,res)=>{
     validationForSignUp(req.body);
     const {firstName,lastName,email,password,About,Age,Gender}=req.body
     try{
@@ -22,6 +22,7 @@ authRouter.post("/signup",userAuth,async(req,res)=>{
             Gender:Gender,
         });
         await User.save();
+        await userAuth();
         res.send("User added successfully!!");
     }
     catch (e) {
