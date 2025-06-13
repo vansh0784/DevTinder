@@ -65,28 +65,41 @@ UserRoute.get("/user/connectionList", verifyToken, async (req, res) => {
 UserRoute.get("/feed", verifyToken, async (req, res) => {
   try {
     const loggedInId = req.user?._id;
+    if (!loggedInId) throw new Error("User not found from token.");
 
+    // 🧠 Step 1: Fetch all connection records involving this user
     const allConnections = await connectionUser.find({
       $or: [{ fromId: loggedInId }, { toId: loggedInId }],
     });
 
+    // 🧠 Step 2: Add self + all connected users to a Set (to hide)
     const hideProfile = new Set([loggedInId.toString()]);
     allConnections.forEach((conn) => {
       hideProfile.add(conn.fromId.toString());
       hideProfile.add(conn.toId.toString());
     });
 
+    // 🧠 Step 3: Fetch all users NOT in hideProfile
     const usersToShow = await USER.find({
       _id: { $nin: Array.from(hideProfile) },
     }).select(displayProfile.join(" "));
 
+    // 🧠 Debug logs
+    console.log("🔐 Logged-in ID:", loggedInId);
+    console.log("🧾 Total connections found:", allConnections.length);
+    console.log("❌ Hidden User IDs:", Array.from(hideProfile));
+    console.log("📢 Users to show in feed:", usersToShow.length);
+
+    // 🧠 Response
     res.status(200).json({
       message: "All feeds are here.",
       success: true,
       data: usersToShow,
     });
   } catch (e) {
+    console.error("❌ Feed Error:", e.message);
     res.status(400).json({
+      success: false,
       message: e.message || "Failed to fetch feed.",
     });
   }
