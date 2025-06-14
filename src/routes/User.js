@@ -84,12 +84,6 @@ UserRoute.get("/user/feed", verifyToken, async (req, res) => {
       _id: { $nin: Array.from(hideProfile) },
     }).select(displayProfile.join(" "));
 
-    // 🧠 Debug logs
-    console.log("🔐 Logged-in ID:", loggedInId);
-    console.log("🧾 Total connections found:", allConnections.length);
-    console.log("❌ Hidden User IDs:", Array.from(hideProfile));
-    console.log("📢 Users to show in feed:", usersToShow.length);
-
     // 🧠 Response
     res.status(200).json({
       message: "All feeds are here.",
